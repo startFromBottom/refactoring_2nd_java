@@ -1,8 +1,5 @@
 import com.google.gson.*;
 
-import java.util.List;
-import java.util.Map;
-
 public class Program {
 
 
@@ -41,20 +38,17 @@ public class Program {
 
         for (JsonElement perfJsonElement : performances) {
             JsonObject perf = perfJsonElement.getAsJsonObject();
-            String playID = perf.getAsJsonObject().get("playID").getAsString();
-            JsonObject play = plays.getAsJsonObject().get(playID).getAsJsonObject();
-            int thisAmount = amountFor(perf, play);
-            int audience = perf.getAsJsonObject().get("audience").getAsInt();
+            int thisAmount = amountFor(perf, getPlay(plays, perf));
             // 포인트를 적립한다.
-            volumeCredits += Math.max(audience - 30, 0);
+            volumeCredits += Math.max(getAudience(perf) - 30, 0);
             // 희극 관객 5명마다 추가 포인트를 제공한다.
-            String type = play.get("type").getAsString();
+            String type = getPlay(plays, perf).get("type").getAsString();
             if (type.equals("comedy")) {
-                volumeCredits += Math.floor((double) audience / 5);
+                volumeCredits += Math.floor((double) getAudience(perf) / 5);
             }
 
             // 청구 내역을 출력한다.
-            result += String.format("%s: %s (%s)\n", play.get("name"), thisAmount / 100, audience);
+            result += String.format("%s: %s (%s)\n", getPlay(plays, perf).get("name"), thisAmount / 100, getAudience(perf));
             totalAmount += thisAmount;
         }
         result += String.format("총액: %s\n", totalAmount / 100);
@@ -64,10 +58,11 @@ public class Program {
 
     }
 
+
     private static int amountFor(JsonObject aPerformance, JsonObject play) {
 
         int result = 0;
-        int audience = aPerformance.getAsJsonObject().get("audience").getAsInt();
+        int audience = getAudience(aPerformance);
         String type = play.get("type").getAsString();
         switch (type) {
             case "tragedy":
@@ -88,5 +83,13 @@ public class Program {
         return result;
     }
 
+    private static JsonObject getPlay(JsonElement plays, JsonObject aPerformance) {
+        String playID = aPerformance.getAsJsonObject().get("playID").getAsString();
+        return plays.getAsJsonObject().get(playID).getAsJsonObject();
+    }
+
+    private static int getAudience(JsonObject aPerformance) {
+        return aPerformance.getAsJsonObject().get("audience").getAsInt();
+    }
 
 }
