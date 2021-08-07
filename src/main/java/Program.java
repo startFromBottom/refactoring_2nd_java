@@ -30,26 +30,33 @@ public class Program {
     private static String statement(JsonElement plays, JsonElement invoices) {
 
         int totalAmount = 0;
-        int volumeCredits = 0;
 
         JsonObject invoice = invoices.getAsJsonArray().get(0).getAsJsonObject();
         JsonArray performances = invoice.get("performances").getAsJsonArray();
         String result = String.format("청구 내역 (고객명 : %s)\n", invoice.get("customer").getAsString());
 
-        for (JsonElement perfJsonElement : performances) {
-            JsonObject perf = perfJsonElement.getAsJsonObject();
-            getVolumeCredits(plays, perf);
 
+        for (JsonElement perfEle : performances) {
+            JsonObject perf = perfEle.getAsJsonObject();
             // 청구 내역을 출력한다.
             result += String.format("%s: %s (%s)\n", getPlay(plays, perf).get("name"),
                     getAmount(perf, getPlay(plays, perf)) / 100, getAudience(perf));
             totalAmount += getAmount(perf, getPlay(plays, perf));
         }
+
         result += String.format("총액: %s\n", totalAmount / 100);
-        result += String.format("적립 포인트 : %s점\n", volumeCredits);
+        result += String.format("적립 포인트 : %s점\n", totalVolumeCredits(plays, performances););
 
         return result;
 
+    }
+
+    private static int totalVolumeCredits(JsonElement plays, JsonArray performances) {
+        int volumeCredits = 0;
+        for (JsonElement perf : performances) {
+            volumeCredits += getVolumeCredits(plays, perf.getAsJsonObject());
+        }
+        return volumeCredits;
     }
 
     private static int getVolumeCredits(JsonElement plays, JsonObject perf) {
