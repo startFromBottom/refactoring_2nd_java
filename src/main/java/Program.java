@@ -43,29 +43,12 @@ public class Program {
             JsonObject perf = perfJsonElement.getAsJsonObject();
             String playID = perf.getAsJsonObject().get("playID").getAsString();
             JsonObject play = plays.getAsJsonObject().get(playID).getAsJsonObject();
-
-            int thisAmount = 0;
+            int thisAmount = amountFor(perf, play);
             int audience = perf.getAsJsonObject().get("audience").getAsInt();
-            String type = play.get("type").getAsString();
-            switch (type) {
-                case "tragedy":
-                    if (audience > 30) {
-                        thisAmount += 1000 * (audience - 30);
-                    }
-                    break;
-                case "comedy":
-                    if (audience > 20) {
-                        thisAmount += 10000 + 500 * (audience - 20);
-                    }
-                    thisAmount += 300 * audience;
-                    break;
-                default:
-                    throw new RuntimeException(String.format("알 수 없는 장르 : %s", type));
-            }
-
             // 포인트를 적립한다.
             volumeCredits += Math.max(audience - 30, 0);
             // 희극 관객 5명마다 추가 포인트를 제공한다.
+            String type = play.get("type").getAsString();
             if (type.equals("comedy")) {
                 volumeCredits += Math.floor((double) audience / 5);
             }
@@ -80,5 +63,30 @@ public class Program {
         return result;
 
     }
+
+    private static int amountFor(JsonObject perf, JsonObject play) {
+
+        int thisAmount = 0;
+        int audience = perf.getAsJsonObject().get("audience").getAsInt();
+        String type = play.get("type").getAsString();
+        switch (type) {
+            case "tragedy":
+                if (audience > 30) {
+                    thisAmount += 1000 * (audience - 30);
+                }
+                break;
+            case "comedy":
+                if (audience > 20) {
+                    thisAmount += 10000 + 500 * (audience - 20);
+                }
+                thisAmount += 300 * audience;
+                break;
+            default:
+                throw new RuntimeException(String.format("알 수 없는 장르 : %s", type));
+        }
+
+        return thisAmount;
+    }
+
 
 }
