@@ -64,28 +64,28 @@ public class Program {
 
     }
 
-    private static int amountFor(JsonObject perf, JsonObject play) {
+    private static int amountFor(JsonObject aPerformance, JsonObject play) {
 
-        int thisAmount = 0;
-        int audience = perf.getAsJsonObject().get("audience").getAsInt();
+        int result = 0;
+        int audience = aPerformance.getAsJsonObject().get("audience").getAsInt();
         String type = play.get("type").getAsString();
         switch (type) {
             case "tragedy":
                 if (audience > 30) {
-                    thisAmount += 1000 * (audience - 30);
+                    result += 1000 * (audience - 30);
                 }
                 break;
             case "comedy":
                 if (audience > 20) {
-                    thisAmount += 10000 + 500 * (audience - 20);
+                    result += 10000 + 500 * (audience - 20);
                 }
-                thisAmount += 300 * audience;
+                result += 300 * audience;
                 break;
             default:
                 throw new RuntimeException(String.format("알 수 없는 장르 : %s", type));
         }
 
-        return thisAmount;
+        return result;
     }
 
 
