@@ -38,18 +38,12 @@ public class Program {
 
         for (JsonElement perfJsonElement : performances) {
             JsonObject perf = perfJsonElement.getAsJsonObject();
-            int thisAmount = amountFor(perf, getPlay(plays, perf));
-            // 포인트를 적립한다.
-            volumeCredits += Math.max(getAudience(perf) - 30, 0);
-            // 희극 관객 5명마다 추가 포인트를 제공한다.
-            String type = getPlay(plays, perf).get("type").getAsString();
-            if (type.equals("comedy")) {
-                volumeCredits += Math.floor((double) getAudience(perf) / 5);
-            }
+            getVolumeCredits(plays, perf);
 
             // 청구 내역을 출력한다.
-            result += String.format("%s: %s (%s)\n", getPlay(plays, perf).get("name"), thisAmount / 100, getAudience(perf));
-            totalAmount += thisAmount;
+            result += String.format("%s: %s (%s)\n", getPlay(plays, perf).get("name"),
+                    getAmount(perf, getPlay(plays, perf)) / 100, getAudience(perf));
+            totalAmount += getAmount(perf, getPlay(plays, perf));
         }
         result += String.format("총액: %s\n", totalAmount / 100);
         result += String.format("적립 포인트 : %s점\n", volumeCredits);
@@ -58,8 +52,18 @@ public class Program {
 
     }
 
+    private static int getVolumeCredits(JsonElement plays, JsonObject perf) {
 
-    private static int amountFor(JsonObject aPerformance, JsonObject play) {
+        int result = 0;
+        result += Math.max(getAudience(perf) - 30, 0);
+        String type = getPlay(plays, perf).get("type").getAsString();
+        if (type.equals("comedy")) {
+            result += Math.floor((double) getAudience(perf) / 5);
+        }
+        return result;
+    }
+
+    private static int getAmount(JsonObject aPerformance, JsonObject play) {
 
         int result = 0;
         int audience = getAudience(aPerformance);
